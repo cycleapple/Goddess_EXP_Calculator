@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>女神任務經驗值計算器</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #121212;
+      color: #f0f0f0;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .calculator {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .calculator h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 1rem;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+    }
+
+    button {
+      margin-top: 15px;
+      background-color: #3a3a3a;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      white-space: pre-line;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator">
+      <h2>女神任務經驗值計算器</h2>
+
+      <label>當前等級（51～70）</label>
+      <input type="number" id="level" min="51" max="70" />
+
+      <label>當前經驗值百分比（0～100）</label>
+      <input type="number" id="percent" min="0" max="100" />
+
+      <label>預計打的場數</label>
+      <input type="number" id="runs" min="0" />
+
+      <button onclick="calculate()">計算</button>
+
+      <div class="result" id="output"></div>
+    </div>
+
+    <div class="footer">
+      <p>
+        由黑貓工作室提供，需要女神代跑服務 👉
+        <a href="https://www.8591.com.tw/v3/mall/detail/2412293112" target="_blank">
+          點此
+        </a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const expTable = {
+      51: 7561307, 52: 8309915, 53: 9099546, 54: 9932448, 55: 10810993,
+      56: 11737682, 57: 12715153, 58: 13746189, 59: 14833725, 60: 15980857,
+      61: 17190851, 62: 18467152, 63: 19813394, 64: 21233410, 65: 22731242,
+      66: 24311155, 67: 25977647, 68: 27735462, 69: 29589605, 70: 31545355,
+      71: 33608280
+    };
+
+    function calculate() {
+      const level = parseInt(document.getElementById("level").value);
+      const percent = parseFloat(document.getElementById("percent").value);
+      const runs = parseInt(document.getElementById("runs").value);
+      const expPerRun = 25700;
+      const output = document.getElementById("output");
+
+      if (
+        isNaN(level) ||
+        isNaN(percent) ||
+        isNaN(runs) ||
+        level < 51 ||
+        level > 70 ||
+        percent < 0 ||
+        percent > 100 ||
+        runs < 0
+      ) {
+        output.innerText = "⚠️ 請輸入有效的數值。";
+        return;
+      }
+
+      let currentExp =
+        expTable[level] +
+        (expTable[level + 1] - expTable[level]) * (percent / 100);
+      currentExp += runs * expPerRun;
+
+      let newLevel = level;
+      while (newLevel < 70 && currentExp >= expTable[newLevel + 1]) {
+        newLevel++;
+      }
+
+      let percentInLevel = 0;
+      if (newLevel < 70) {
+        const base = expTable[newLevel];
+        const next = expTable[newLevel + 1];
+        percentInLevel = ((currentExp - base) / (next - base)) * 100;
+      } else {
+        percentInLevel = 100;
+      }
+
+      output.innerText = `打完後等級：Lv.${newLevel}\n經驗值百分比：${percentInLevel.toFixed(
+        2
+      )}%`;
+    }
+  </script>
+</body>
+</html>
