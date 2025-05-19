@@ -113,9 +113,7 @@
     <div class="footer">
       <p>
         由黑貓工作室提供，需要女神代跑服務 👉
-        <a href="https://www.8591.com.tw/v3/mall/detail/2412293112" target="_blank">
-          點此
-        </a>
+        <a href="https://www.8591.com.tw/v3/mall/detail/2412293112" target="_blank">點此</a>
       </p>
     </div>
   </div>
@@ -126,7 +124,7 @@
       56: 11737682, 57: 12715153, 58: 13746189, 59: 14833725, 60: 15980857,
       61: 17190851, 62: 18467152, 63: 19813394, 64: 21233410, 65: 22731242,
       66: 24311155, 67: 25977647, 68: 27735462, 69: 29589605, 70: 31545355,
-      71: 33608280
+      71: 33608280, 72: 35784253, 73: 38079469
     };
 
     function calculate() {
@@ -150,28 +148,42 @@
         return;
       }
 
-      let currentExp =
+      // 起始經驗值
+      const startingExp =
         expTable[level] +
         (expTable[level + 1] - expTable[level]) * (percent / 100);
-      currentExp += runs * expPerRun;
 
+      // 加上任務經驗
+      const currentExp = startingExp + runs * expPerRun;
+
+      // 找到新的等級
       let newLevel = level;
-      while (newLevel < 70 && currentExp >= expTable[newLevel + 1]) {
+      while (
+        expTable[newLevel + 1] !== undefined &&
+        currentExp >= expTable[newLevel + 1]
+      ) {
         newLevel++;
       }
 
-      let percentInLevel = 0;
-      if (newLevel < 70) {
-        const base = expTable[newLevel];
-        const next = expTable[newLevel + 1];
-        percentInLevel = ((currentExp - base) / (next - base)) * 100;
-      } else {
-        percentInLevel = 100;
+      // 計算該等級內的百分比
+      const base = expTable[newLevel];
+      const next = expTable[newLevel + 1] || base + 1;
+      const percentInLevel = ((currentExp - base) / (next - base)) * 100;
+
+      // 結果文字
+      let resultText = `打完後等級：Lv.${newLevel}\n經驗值百分比：${percentInLevel.toFixed(2)}%`;
+
+      if (newLevel >= 71) {
+        const expTo71 = expTable[71] - startingExp;
+        const requiredRuns = Math.ceil(expTo71 / expPerRun);
+        const excessRuns = runs - requiredRuns;
+
+        if (excessRuns > 0) {
+          resultText += `\n⚠️ Lv.70升等後多打了 ${excessRuns} 場女神任務`;
+        }
       }
 
-      output.innerText = `打完後等級：Lv.${newLevel}\n經驗值百分比：${percentInLevel.toFixed(
-        2
-      )}%`;
+      output.innerText = resultText;
     }
   </script>
 </body>
